@@ -1,5 +1,3 @@
-# technical-interview-55k-1h
-
 ## Project setup
 ```
 npm install
