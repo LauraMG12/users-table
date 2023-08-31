@@ -1,12 +1,11 @@
 export interface FormatedUser {
-  id: string;
+  id: number;
   name: string;
   surname: string;
   country: string;
   picture: string;
 }
 export interface User {
-  id: CompleteId;
   name: CompleteName;
   location: CompleteLocation;
   picture: FormatedPicture;
@@ -45,8 +44,4 @@ interface FormatedPicture {
   large: string;
   medium: string;
   thumbnail: string;
-}
-interface CompleteId {
-  name: string;
-  value: string;
 }

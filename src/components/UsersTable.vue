@@ -6,7 +6,7 @@ import AppButton from "@/components/AppButton.vue";
 import { useUsersStore } from "@/store/usersStore";
 
 const usersStore = useUsersStore();
-const { users, showldRowsHaveColor } = storeToRefs(usersStore);
+const { displayedUsers, showldRowsHaveColor } = storeToRefs(usersStore);
 
 const headers = ref<string[]>([
   "Foto",
@@ -29,9 +29,8 @@ function setAltValue(name: string, surname: string): string {
     <tr>
       <th v-for="header in headers" :key="header">{{ header }}</th>
     </tr>
-
     <tr
-      v-for="user in users"
+      v-for="user in displayedUsers"
       :key="user.id"
       :class="{ color: showldRowsHaveColor }"
     >
@@ -41,7 +40,9 @@ function setAltValue(name: string, surname: string): string {
       <td>{{ user.name }}</td>
       <td>{{ user.surname }}</td>
       <td>{{ user.country }}</td>
-      <td><AppButton text="Delete" /></td>
+      <td>
+        <AppButton text="Borrar" @click="usersStore.deleteUser(user.id)" />
+      </td>
     </tr>
   </table>
 </template>
@@ -55,11 +56,17 @@ tr {
   border-bottom: 1px solid #cecece;
   &.color {
     &:nth-child(2n) {
-      background-color: #c9e2ff;
+      background-color: #d7e8fb;
     }
     &:not(:nth-child(2n)) {
-      background-color: #e0f2fd;
+      background-color: #e3f1fa;
     }
+    &:hover {
+      background-color: #49a6fd;
+    }
+  }
+  &:hover {
+    background-color: #49a6fd;
   }
 }
 th {

@@ -1,26 +1,35 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import { storeToRefs } from "pinia";
-
 import AppButton from "@/components/AppButton.vue";
 
 import { useUsersStore } from "@/store/usersStore";
-const usersStore = useUsersStore();
-const { showldRowsHaveColor } = storeToRefs(usersStore);
-const showldOrderUsersByCountry = ref<boolean>(false);
+import { storeToRefs } from "pinia";
+import { watch } from "vue";
 
-function toggleRowsColor(): void {
-  showldRowsHaveColor.value = !showldRowsHaveColor.value;
-}
-function toggleOrderByCountry(): void {
-  showldOrderUsersByCountry.value = !showldOrderUsersByCountry.value;
-}
+const usersStore = useUsersStore();
+const { countryFilterText } = storeToRefs(usersStore);
+
+watch(countryFilterText, () => {
+  usersStore.filterByCountry();
+});
 </script>
 
 <template>
   <div class="options">
-    <AppButton text="Colorear filas" @click="toggleRowsColor()" />
-    <AppButton text="Ordenar por país" @click="toggleOrderByCountry()" />
+    <AppButton text="Colorear filas" @click="usersStore.toggleRowsColor()" />
+    <AppButton
+      text="Ordenar por país"
+      @click="usersStore.toggleOrderByCountry()"
+    />
+    <AppButton
+      text="Restaurar estado inicial"
+      @click="usersStore.resetUsers()"
+    />
+    <input
+      class="filter"
+      type="text"
+      placeholder="Filtrar por país"
+      v-model="countryFilterText"
+    />
   </div>
 </template>
 
@@ -30,5 +39,10 @@ function toggleOrderByCountry(): void {
   display: flex;
   justify-content: center;
   gap: 10px;
+  .filter {
+    border-radius: 10px;
+    padding: 0 10px;
+    background-color: #f0f0f0;
+  }
 }
 </style>

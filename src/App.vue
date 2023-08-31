@@ -1,14 +1,8 @@
 <script setup lang="ts">
-import { storeToRefs } from "pinia";
-import { useUsersStore } from "@/store/usersStore";
-
 import AppActions from "@/components/AppActions.vue";
 import UsersTable from "@/components/UsersTable.vue";
 
 import { fetchUsersFromApi } from "./AppHelper";
-
-const usersStore = useUsersStore();
-const { showldRowsHaveColor } = storeToRefs(usersStore);
 
 fetchUsersFromApi();
 </script>
@@ -18,7 +12,7 @@ fetchUsersFromApi();
     <h1>Lista de usuarios</h1>
   </header>
   <nav>
-    <AppActions @rows-color-changed="showldRowsHaveColor = $event" />
+    <AppActions />
   </nav>
   <main>
     <UsersTable />
