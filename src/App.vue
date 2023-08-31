@@ -1,16 +1,27 @@
 <script setup lang="ts">
-import AppButton from "@/components/AppButton.vue";
-import { setUsersFromApi, headers, users, CompleteName } from "@/store/state";
 import { ref } from "vue";
+import { storeToRefs } from "pinia";
+import AppButton from "@/components/AppButton.vue";
+import { useUsersStore } from "@/store/users";
+import type { CompleteName } from "@/store/interfaces";
 
 fetch("https://randomuser.me/api/?results=100&inc=picture,name,nat,id")
   .then((res) => res.json())
   .then((res) => setUsersFromApi(res.results));
 
-const displayedUsers = ref(users);
+const usersStore = useUsersStore();
+const { users } = storeToRefs(usersStore);
+const { setUsersFromApi } = usersStore;
+
 const showldRowsHaveColor = ref<boolean>(false);
 const showldOrderUsersByCountry = ref<boolean>(false);
-
+const headers = ref<string[]>([
+  "Foto",
+  "Nombre",
+  "Apellido",
+  "País",
+  "Acciones",
+]);
 function setAltValue(name: CompleteName): string {
   return `${name.first}
             ${name.last}
@@ -23,13 +34,6 @@ function toggleRowsColor(): void {
 }
 function toggleOrderByCountry(): void {
   showldOrderUsersByCountry.value = !showldOrderUsersByCountry.value;
-  if (showldOrderUsersByCountry.value && users.value) {
-    displayedUsers.value = users.value.sort((a, b) =>
-      a.nat > b.nat ? 1 : b.nat > a.nat ? -1 : 0
-    );
-  } else {
-    displayedUsers.value = users.value;
-  }
 }
 </script>
 
@@ -46,7 +50,7 @@ function toggleOrderByCountry(): void {
       </tr>
 
       <tr
-        v-for="user in displayedUsers"
+        v-for="user in users"
         :key="user.id.value"
         :class="{ color: showldRowsHaveColor }"
       >
