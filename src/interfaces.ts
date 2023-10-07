@@ -1,5 +1,18 @@
+declare global {
+  interface Array<T> {
+    toSorted(compareFn?: (a: T, b: T) => number): T[];
+  }
+}
+
+export enum SortBy {
+  NONE = "none",
+  NAME = "name",
+  SURNAME = "surname",
+  COUNTRY = "country",
+}
+
 export interface FormatedUser {
-  id: number;
+  id: string;
   name: string;
   surname: string;
   country: string;
@@ -9,6 +22,7 @@ export interface User {
   name: CompleteName;
   location: CompleteLocation;
   picture: FormatedPicture;
+  email: string;
 }
 
 export interface CompleteName {

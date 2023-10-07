@@ -9,7 +9,7 @@ fetchUsersFromApi();
 
 <template>
   <header>
-    <h1>Lista de usuarios</h1>
+    <h1>Users list</h1>
   </header>
   <nav>
     <AppActions />

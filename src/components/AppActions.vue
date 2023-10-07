@@ -2,33 +2,31 @@
 import AppButton from "@/components/AppButton.vue";
 
 import { useUsersStore } from "@/store/usersStore";
-import { storeToRefs } from "pinia";
-import { watch } from "vue";
+import { ref, watch } from "vue";
+
+import { SortBy } from "../interfaces";
 
 const usersStore = useUsersStore();
-const { countryFilterText } = storeToRefs(usersStore);
+const input = ref<string>("");
 
-watch(countryFilterText, () => {
-  usersStore.filterByCountry();
+watch(input, () => {
+  usersStore.setFilterCountry(input.value);
 });
 </script>
 
 <template>
   <div class="options">
-    <AppButton text="Colorear filas" @click="usersStore.toggleRowsColor()" />
+    <AppButton text="Color rows" @click="usersStore.toggleRowsColor()" />
     <AppButton
-      text="Ordenar por país"
-      @click="usersStore.toggleOrderByCountry()"
+      text="Order by country"
+      @click="usersStore.setSorting(SortBy.COUNTRY)"
     />
-    <AppButton
-      text="Restaurar estado inicial"
-      @click="usersStore.resetUsers()"
-    />
+    <AppButton text="Reset users" @click="usersStore.handleReset()" />
     <input
       class="filter"
       type="text"
-      placeholder="Filtrar por país"
-      v-model="countryFilterText"
+      placeholder="Filter by country"
+      v-model="input"
     />
   </div>
 </template>

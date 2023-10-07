@@ -1,67 +1,77 @@
 import { defineStore } from "pinia";
-import type { FormatedUser } from "../interfaces";
+import { type FormatedUser, SortBy } from "../interfaces";
 
-export const useUsersStore = defineStore("fetchedUsers", {
+export const useUsersStore = defineStore("users", {
   // DATA -> ref()
   state: () => ({
-    fetchedUsers: [] as FormatedUser[],
-
+    originalUsers: [] as FormatedUser[],
     users: [] as FormatedUser[],
-    orderedUsersByCountry: [] as FormatedUser[],
-
-    countryFilterText: "" as string,
-    showldRowsHaveColor: false as boolean,
-    shouldOrderUsersByCountry: false as boolean,
+    incompletedUsers: [] as FormatedUser[],
+    showRowsColor: false as boolean,
+    sort: SortBy.NONE as SortBy,
+    filterCountry: "" as string,
   }),
+
   // COMPUTED -> computed()
   getters: {
-    displayedUsers: (state) => {
-      return state.shouldOrderUsersByCountry
-        ? state.orderedUsersByCountry
+    filteredUsers(state) {
+      return state.filterCountry !== "" && state.filterCountry.length > 0
+        ? state.users.filter((user) => {
+            return user.country
+              .toLowerCase()
+              .includes(state.filterCountry.toLowerCase());
+          })
         : state.users;
     },
+    sortedUsers(state): FormatedUser[] {
+      if (state.sort === SortBy.NONE) {
+        return this.filteredUsers;
+      }
+
+      const compareProperties: Record<string, (user: FormatedUser) => string> =
+        {
+          [SortBy.COUNTRY]: (user) => user.country,
+          [SortBy.NAME]: (user) => user.name,
+          [SortBy.SURNAME]: (user) => user.surname,
+        };
+
+      return this.filteredUsers.toSorted((a, b) => {
+        const extractProperty = compareProperties[state.sort];
+        return extractProperty(a).localeCompare(extractProperty(b));
+      });
+    },
   },
+
   // METHODS -> function()
   actions: {
-    deleteUser(id: number): void {
-      deleteUserFromState(this.users, id);
-      deleteUserFromState(this.orderedUsersByCountry, id);
-
-      function deleteUserFromState(state: FormatedUser[], id: number): void {
-        const removedUserIndex = state.findIndex((user) => user.id === id);
-        state.splice(removedUserIndex, 1);
-      }
+    setOriginalUsers(response: FormatedUser[]): void {
+      this.originalUsers = response;
+      this.setUsers(response);
     },
-    filterByCountry(): void {
-      this.orderedUsersByCountry.filter((user) =>
-        user.country.startsWith(this.countryFilterText)
-      );
-      this.users.filter((user) =>
-        user.country.startsWith(this.countryFilterText)
-      );
-    },
-    resetUsers(): void {
-      this.users = this.fetchedUsers;
-      this.setOrderedUsersByCountry();
-    },
-    setUsersFromApi(response: FormatedUser[]): void {
-      this.fetchedUsers = response;
-      this.users = JSON.parse(JSON.stringify(this.fetchedUsers));
-    },
-    setOrderedUsersByCountry(): void {
-      this.orderedUsersByCountry = JSON.parse(JSON.stringify(this.users));
-      this.orderedUsersByCountry.sort((a, b) =>
-        a.country > b.country ? 1 : b.country > a.country ? -1 : 0
-      );
+    setUsers(response: FormatedUser[]): void {
+      this.users = response;
     },
     toggleRowsColor(): void {
-      this.showldRowsHaveColor = !this.showldRowsHaveColor;
+      this.showRowsColor = !this.showRowsColor;
     },
-    toggleOrderByCountry(): void {
-      this.shouldOrderUsersByCountry = !this.shouldOrderUsersByCountry;
-      if (Object.keys(this.orderedUsersByCountry).length === 0) {
-        this.setOrderedUsersByCountry();
+    setSorting(sortType: SortBy): void {
+      if (this.sort === sortType) {
+        this.sort = SortBy.NONE;
+        return;
       }
+      this.sort = sortType;
+    },
+    handleDelete(id: string): void {
+      this.incompletedUsers = this.users.filter((user) => {
+        return user.id !== id;
+      });
+      this.setUsers(this.incompletedUsers);
+    },
+    handleReset(): void {
+      this.users = this.originalUsers;
+    },
+    setFilterCountry(input: string): void {
+      this.filterCountry = input;
     },
   },
 });
